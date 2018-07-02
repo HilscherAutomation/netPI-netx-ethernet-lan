@@ -60,6 +60,22 @@ Use a command e.g. `ip add show` to list all available network interfaces. Recog
 
 Use a command such as `ip link set cifx0 up` to bring the interface up first, followed by a static ip address setting using `ip addr add 192.168.253.100/24 broadcast 192.168.253.255 dev cifx0` for example. After that the interface is ready to use.
 
+#### Driver, Firmware and Daemon
+
+There are three components necessary to get the `cifx0` Ethernet LAN interface up an running.
+
+##### Driver
+
+There is the netX driver in the repository's folder `driver` negotiating the communication between the Raspberry CPU and netX. The driver is installed using the command `dpkg -i netx-docker-pi-drv-x.x.x.deb` and comes preinstalled in the container. The driver communicates across the device `/dev/spidev0.0` with netX.
+
+##### Firmware
+
+There is the firmware for netX in the repository's folder `firmware` enabling the netX Ethernet LAN function. The firmware is installed using the command `dpkg -i netx-docker-pi-pns-eth-x.x.x.x.deb` and comes preinstalled in the container. Once an application (Daemon) is starting the driver, the driver checks whether or not netX is loaded with the appropriate firmware. If not the driver then loads the firmware automatically into netX and starts it.
+
+##### Daemon
+
+There is the Deamon in the repository's folder `driver` running as a background process and keeping the `cifx0` Ethernet LAN interface active started once. The Daemon is available as source code named `cifx0daemon.c` and comes precompiled in the container using the gcc compiler with the option `-pthread` since it uses thread child/parent forking. When the container is started the Daemon is automatically started by the start script `entrypoint.sh`. You can see the Daemon active on the system using the `ps -e` command as `cifx0daemon` process.
+
 #### Tags
 
 * **hilscher/netPI-netx-ethernet-lan:latest** - non-versioned latest development output of the master branch. Can run on any netPI RTE 3 system software version.
