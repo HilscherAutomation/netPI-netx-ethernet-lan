@@ -1,16 +1,16 @@
 #use latest armv7hf compatible debian version from group resin.io as base image
-FROM resin/armv7hf-debian:jessie
+FROM resin/armv7hf-debian:stretch
 
 #enable building ARM container on x86 machinery on the web (comment out next line if not built as automated build on docker hub) 
 RUN [ "cross-build-start" ]
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
-      version="V0.9.1.0" \
+      version="V0.9.2" \
       description="netX based TCP/IP network interface"
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.1.0
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.2
 
 #copy files
 COPY "./init.d/*" /etc/init.d/ 
@@ -25,7 +25,7 @@ RUN apt-get update  \
     && echo 'pi:raspberry' | chpasswd \
     && adduser pi sudo \
     && mkdir /var/run/sshd \
-    && sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
 #install netX driver and netX ethernet supporting firmware
     && dpkg -i /tmp/netx-docker-pi-drv-1.1.3.deb \
