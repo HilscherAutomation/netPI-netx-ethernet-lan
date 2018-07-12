@@ -6,11 +6,11 @@ RUN [ "cross-build-start" ]
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
-      version="V0.9.2" \
+      version="V0.9.3" \
       description="netX based TCP/IP network interface"
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.2
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.3
 
 #copy files
 COPY "./init.d/*" /etc/init.d/ 
@@ -18,7 +18,7 @@ COPY "./driver/*" "./firmware/*" /tmp/
 
 #do installation
 RUN apt-get update  \
-    && apt-get install -y openssh-server build-essential \
+    && apt-get install -y openssh-server build-essential network-manager ifupdown \
 #do users root and pi    
     && useradd --create-home --shell /bin/bash pi \
     && echo 'root:root' | chpasswd \
@@ -32,6 +32,10 @@ RUN apt-get update  \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
 #compile netX network daemon
     && gcc /tmp/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
+#enable automatic interface management
+    && sudo sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf \
+#copy the cifx0 interface configuration file 
+    && cp /tmp/cifx0 /etc/network/interfaces.d
 #clean up
     && rm -rf /tmp/* \
     && apt-get remove build-essential \

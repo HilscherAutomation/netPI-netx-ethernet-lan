@@ -20,6 +20,13 @@ echo "starting ssh ..."
 # create netx "cifx0" ethernet network interface 
 /opt/cifx/cifx0daemon
 
+#start the network-manager
+/etc/init.d/network-manager start
+
+#stop/start the networking
+/etc/init.d/networking stop
+/etc/init.d/networking start
+
 # wait forever not to exit the container
 while true
 do

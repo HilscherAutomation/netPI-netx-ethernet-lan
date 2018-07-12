@@ -56,13 +56,13 @@ The container starts the SSH service and the netX network interface daemon autom
 
 Login to it with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
-Use a command e.g. `ip add show` to list all available network interfaces. Recognize the additional netX network interface named `cifx0`. By default it is in state down and you have to configure it.
+Use a command e.g. `ip add show` to list all available network interfaces. Recognize the additional netX network interface named `cifx0` next to the `eth0`. 
 
-Use a command such as `ip link set cifx0 up` to bring the interface up first, followed by a static ip address setting using `ip addr add 192.168.253.100/24 broadcast 192.168.253.255 dev cifx0` for example. After that the interface is ready to use.
+You find the auto configuring cifx0 configuration file in /etc/network/interfaces.d/cifx0. Modify it in accordance to [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) to meet your demands. Before restarting the networking afterwards with `/etc/init.d/networking restart` make sure you deleted the existing cifx0 ip address setting with a command e.g. `ip add del x.x.x.x/x dev cifx0`.
 
 #### Driver, Firmware and Daemon
 
-There are three components necessary to get the `cifx0` Ethernet LAN interface up an running.
+There are three components necessary to get the `cifx0` Ethernet LAN interface up an running. The rest is handled by the standard network manager automatically.
 
 ##### Driver
 
