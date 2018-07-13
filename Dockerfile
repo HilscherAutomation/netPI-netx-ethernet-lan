@@ -35,7 +35,7 @@ RUN apt-get update  \
 #enable automatic interface management
     && sudo sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf \
 #copy the cifx0 interface configuration file 
-    && cp /tmp/cifx0 /etc/network/interfaces.d
+    && cp /tmp/cifx0 /etc/network/interfaces.d \
 #clean up
     && rm -rf /tmp/* \
     && apt-get remove build-essential \
