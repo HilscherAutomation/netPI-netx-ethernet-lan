@@ -4,9 +4,9 @@ Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Open Edge Connectivit
 
 ### Using netPI's Industrial Ethernet network ports as standard Ethernet interface
 
-The image provided hereunder deploys a container with installed software that turns netPI's Industrial Ethernet ports into a standard Ethernet network interface.
+The image provided hereunder deploys a container with installed software turning netPI's Industrial Ethernet ports into a two-ported switched standard Ethernet network interface with a single IP address.
 
-Base of this image builds a tagged version of [debian:jessie](https://hub.docker.com/r/resin/armv7hf-debian/tags/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell), created user 'root', installed netX driver, network interface daemon and standard Ethernet supporting netX firmware creating an additional network interface named `cifx0`(**c**ommunication **i**nter**f**ace **x**).  The interface can be administered as usual with commands such as [ip](https://linux.die.net/man/8/ip) or similar.
+Base of this image builds a tagged version of [debian:stretch](https://hub.docker.com/r/resin/armv7hf-debian/tags/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell), created user 'root', installed netX driver, network interface daemon and standard Ethernet supporting netX firmware creating an additional network interface named `cifx0`(**c**ommunication **i**nter**f**ace **x**).  The interface can be administered with standard commands such as [ip](https://linux.die.net/man/8/ip) or similar.
 
 #### Container prerequisites
 
@@ -16,7 +16,7 @@ For enabling remote login to the container across SSH the container's SSH port 2
 
 ##### Privileged mode
 
-The container creates an Ethernet network interface (LAN) from netPI's Industrial network controller netX. Creating a LAN needs full access to the host Linux. Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface.
+The container creates an Ethernet network interface (LAN) from netPI's Industrial network controller netX. Creating a LAN needs full access to the Docker host. Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface.
 
 ##### Host devices
 
@@ -48,21 +48,29 @@ STEP 3. Enter the following parameters under **Containers > Add Container**
 
 STEP 4. Press the button **Actions > Start container**
 
-Pulling the image from Docker Hub may take up to 5 minutes.
+Pulling the image from Docker Hub may take up to 10 minutes.
 
 #### Accessing
 
-The container starts the SSH service and the netX network interface daemon automatically.
+The container starts the SSH server, the netX network interface daemon for `cifx0`, the NetworkManager and the networking server automatically.
 
 Login to it with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
-Use a command e.g. `ip add show` to list all available network interfaces. Recognize the additional netX network interface named `cifx0` next to the `eth0`. 
+Use a command e.g. `ip add show` to list all available network interfaces. You will recognize the additional netX network interface named `cifx0` next to standard `eth0`. 
 
-You find the auto configuring cifx0 configuration file in /etc/network/interfaces.d/cifx0. Modify it in accordance to [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) to meet your demands. Before restarting the networking afterwards with `/etc/init.d/networking restart` make sure you deleted the existing cifx0 ip address setting with a command e.g. `ip add del x.x.x.x/x dev cifx0`.
+At runtime you find the `cifx0` Ethernet configuration file in `/etc/network/interfaces.d/cifx0` or offline in the repository's folder `driver`. By default the interface is configured to a static ip address 192.168.253.1. Modify the file in accordance to [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) to meet your demands. If online make sure you deleted the running `cifx0` setup with a command e.g. `ip add del x.x.x.x/x dev cifx0` before you restart the networking server after your modification with `/etc/init.d/networking restart`. Else the interface is assigned a secondary, third ... parallel setup to.
+
+#### Limitation
+
+The `cifx0` interface does not support Ethernet package reception of type multicast.
+
+Servicing the `cifx0` interface is only possible in the container it was created. It is not available to the Docker host or to any other containers started.
+
+Since netX network controller is a single resource a `cifx0` interface can only be created once at a time on netPI.
 
 #### Driver, Firmware and Daemon
 
-There are three components necessary to get the `cifx0` Ethernet LAN interface up an running. The rest is handled by the standard network manager automatically.
+There are three components necessary to get the `cifx0` recognized as Ethernet interface by the NetworkManager and the networking server.
 
 ##### Driver
 
@@ -74,7 +82,11 @@ There is the firmware for netX in the repository's folder `firmware` enabling th
 
 ##### Daemon
 
-There is the Deamon in the repository's folder `driver` running as a background process and keeping the `cifx0` Ethernet LAN interface active started once. The Daemon is available as source code named `cifx0daemon.c` and comes precompiled in the container using the gcc compiler with the option `-pthread` since it uses thread child/parent forking. When the container is started the Daemon is automatically started by the start script `entrypoint.sh`. You can see the Daemon active on the system using the `ps -e` command as `cifx0daemon` process.
+There is the Deamon in the repository's folder `driver` running as a background process and keeping the `cifx0` Ethernet interface active. The Daemon is available in the repository as source code named `cifx0daemon.c` and comes precompiled in the container at `/opt/cifx0/cifx0daemon` by using the gcc compiler with the option `-pthread` since it uses thread child/parent forking. 
+
+The container starts the Daemon by its entrypoint script `/etc/init.d/entrypoint.sh`. You can see the Daemon running using the `ps -e` command as `cifx0daemon` process.
+
+If you kill the `cifx0daemon` process the `cifx0` interface will be removed as well. The Daemon can be restarted at any time using the `/opt/cifx0/cifx0daemon` command.
 
 #### Tags
 
