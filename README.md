@@ -1,8 +1,8 @@
-## Ethernet across Industrial Ethernet ports 
+## Ethernet LAN on Industrial Ethernet ports
 
-Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Open Edge Connectivity Ecosystem with Industrial Ethernet support
+Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
 
-### Using netPI's Industrial Ethernet network ports as standard Ethernet interface
+### Using netPI RTE 3 Industrial Ethernet network ports as standard Ethernet interface
 
 The image provided hereunder deploys a container with installed software turning netPI's Industrial Ethernet ports into a two-ported switched standard Ethernet network interface with a single IP address.
 
@@ -46,15 +46,15 @@ STEP 3. Enter the following parameters under **Containers > Add Container**
 
 * **Runtime > Devices > add device**: `Host "/dev/net/tun" -> Container "/dev/net/tun"`
 
-STEP 4. Press the button **Actions > Start container**
+STEP 4. Press the button **Actions > Start/Deploy container**
 
-Pulling the image from Docker Hub may take up to 10 minutes.
+Pulling the image may take a while (5-10mins). Sometimes it takes so long that a time out is indicated. In this case repeat the **Actions > Start/Deploy container** action.
 
 #### Accessing
 
 The container starts the SSH server, the netX network interface daemon for `cifx0`, the NetworkManager and the networking server automatically.
 
-Login to it with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
+Login to the container with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
 Use a command e.g. `ip add show` to list all available network interfaces. You will recognize the additional netX network interface named `cifx0` next to standard `eth0`. 
 
@@ -88,16 +88,15 @@ The container starts the Daemon by its entrypoint script `/etc/init.d/entrypoint
 
 If you kill the `cifx0daemon` process the `cifx0` interface will be removed as well. The Daemon can be restarted at any time using the `/opt/cifx0/cifx0daemon` command.
 
-#### Tags
+#### Automated build
 
-* **hilscher/netPI-netx-ethernet-lan:latest** - non-versioned latest development output of the master branch. Can run on any netPI RTE 3 system software version.
+The project complies with the scripting based [Dockerfile](https://docs.docker.com/engine/reference/builder/) method to build the image output file. Using this method is a precondition for an [automated](https://docs.docker.com/docker-hub/builds/) web based build process on DockerHub platform.
 
-#### GitHub sources
-The image is built from the GitHub project [netPI-netx-ethernet-lan](https://github.com/Hilscher/netPI-netx-ethernet-lan). It complies with the [Dockerfile](https://docs.docker.com/engine/reference/builder/) method to build a Docker image [automated](https://docs.docker.com/docker-hub/builds/).
+DockerHub web platform is x86 CPU based, but an ARM CPU coded output file is needed for Raspberry systems. This is why the Dockerfile includes the [balena.io](https://balena.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/) steps.
 
-View the license information for the software in the Github project. As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
+#### License
+
+View the license information for the software in the project. As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
 As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
-
-To build the container for an ARM CPU on [Docker Hub](https://hub.docker.com/)(x86 based) the Dockerfile uses the method described here [resin.io](https://resin.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/).
 
 [![N|Solid](http://www.hilscher.com/fileadmin/templates/doctima_2013/resources/Images/logo_hilscher.png)](http://www.hilscher.com)  Hilscher Gesellschaft fuer Systemautomation mbH  www.hilscher.com
