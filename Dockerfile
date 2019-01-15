@@ -6,11 +6,11 @@ RUN [ "cross-build-start" ]
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
-      version="V0.9.3" \
+      version="V0.9.4" \
       description="netX based TCP/IP network interface"
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.3
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.4
 
 #copy files
 COPY "./init.d/*" /etc/init.d/ 
@@ -28,7 +28,7 @@ RUN apt-get update  \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
 #install netX driver and netX ethernet supporting firmware
-    && dpkg -i /tmp/netx-docker-pi-drv-1.1.3.deb \
+    && dpkg -i /tmp/netx-docker-pi-drv-1.1.3-r1.deb \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
 #compile netX network daemon
     && gcc /tmp/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
