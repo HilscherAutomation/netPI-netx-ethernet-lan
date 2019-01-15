@@ -4,7 +4,7 @@ Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Raspberry Pi 3B Archi
 
 ### Using netPI RTE 3 Industrial Ethernet network ports as standard Ethernet interface
 
-The image provided hereunder deploys a container with installed software turning netPI's Industrial Ethernet ports into a two-ported switched standard Ethernet network interface with a single IP address.
+The image provided hereunder deploys a container with installed software turning netPI's Industrial Ethernet ports into a two-ported (switched) standard Ethernet network interface with a single IP address.
 
 Base of this image builds a tagged version of [debian:stretch](https://hub.docker.com/r/resin/armv7hf-debian/tags/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell), created user 'root', installed netX driver, network interface daemon and standard Ethernet supporting netX firmware creating an additional network interface named `cifx0`(**c**ommunication **i**nter**f**ace **x**).  The interface can be administered with standard commands such as [ip](https://linux.die.net/man/8/ip) or similar.
 
@@ -16,7 +16,7 @@ For enabling remote login to the container across SSH the container's SSH port 2
 
 ##### Privileged mode
 
-The container creates an Ethernet network interface (LAN) from netPI's Industrial network controller netX. Creating a LAN needs full access to the Docker host. Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface.
+The container creates an Ethernet network interface (LAN) from netPI's Industrial network controller netX. Creating a LAN in general needs full access to the Docker host. Also the netX driver needs access to the Docker host GPIO interface to poll for pending incoming Ethernet frames.  Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface and to access the GPIO interface in a container.
 
 ##### Host devices
 
@@ -25,8 +25,6 @@ To grant access to the netX from inside the container the `/dev/spidev0.0` host 
 To allow the container creating an additional network device for the netX network controller the `/dev/net/tun` host device needs to be expose to the container.
 
 #### Getting started
-
-##### On netPI
 
 STEP 1. Open netPI's landing page under `https://<netpi's ip address>`.
 
@@ -42,9 +40,7 @@ STEP 3. Enter the following parameters under **Containers > Add Container**
 
 * **Runtime > Privileged mode** : `On`
 
-* **Runtime > Devices > add device**: `Host "/dev/spidev0.0" -> Container "/dev/spidev0.0"`
-
-* **Runtime > Devices > add device**: `Host "/dev/net/tun" -> Container "/dev/net/tun"`
+* **Runtime > Devices > add device**: `Host "/dev/spidev0.0" -> Container "/dev/spidev0.0"` and `Host "/dev/net/tun" -> Container "/dev/net/tun"`
 
 STEP 4. Press the button **Actions > Start/Deploy container**
 
@@ -52,7 +48,7 @@ Pulling the image may take a while (5-10mins). Sometimes it takes so long that a
 
 #### Accessing
 
-The container starts the SSH server, the netX network interface daemon for `cifx0`, the NetworkManager and the networking server automatically.
+The container starts the SSH server, the netX network interface daemon of `cifx0`, the NetworkManager and the networking server automatically.
 
 Login to the container with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
@@ -66,7 +62,7 @@ The `cifx0` interface does not support Ethernet package reception of type multic
 
 Servicing the `cifx0` interface is only possible in the container it was created. It is not available to the Docker host or to any other containers started.
 
-Since netX network controller is a single resource a `cifx0` interface can only be created once at a time on netPI.
+Since netX network controller is a single resource a `cifx0` interface can only be created once (in one container) at a time on netPI.
 
 #### Driver, Firmware and Daemon
 
@@ -74,7 +70,7 @@ There are three components necessary to get the `cifx0` recognized as Ethernet i
 
 ##### Driver
 
-There is the netX driver in the repository's folder `driver` negotiating the communication between the Raspberry CPU and netX. The driver is installed using the command `dpkg -i netx-docker-pi-drv-x.x.x.deb` and comes preinstalled in the container. The driver communicates across the device `/dev/spidev0.0` with netX.
+There is the netX driver in the repository's folder `driver` negotiating the communication between the Raspberry CPU and netX. The driver is installed using the command `dpkg -i netx-docker-pi-drv-x.x.x.deb` and comes preinstalled in the container. The driver communicates across the device `/dev/spidev0.0` with netX and uses the GPIO24 pin to poll for incoming Ethernet frames indicated by netX across this pin. If GPIO24 is not found already created when the driver is started, the driver creates it under `/sys/class/gpio/` itself.
 
 ##### Firmware
 
@@ -82,7 +78,7 @@ There is the firmware for netX in the repository's folder `firmware` enabling th
 
 ##### Daemon
 
-There is the Deamon in the repository's folder `driver` running as a background process and keeping the `cifx0` Ethernet interface active. The Daemon is available in the repository as source code named `cifx0daemon.c` and comes precompiled in the container at `/opt/cifx0/cifx0daemon` by using the gcc compiler with the option `-pthread` since it uses thread child/parent forking. 
+There is the Deamon in the repository's folder `driver` running as a background process and keeping the `cifx0` Ethernet interface active. The Daemon is available in the repository as source code named `cifx0daemon.c` and comes precompiled in the container at `/opt/cifx0/cifx0daemon` using the gcc compiler with the option `-pthread` since it uses thread child/parent forking. 
 
 The container starts the Daemon by its entrypoint script `/etc/init.d/entrypoint.sh`. You can see the Daemon running using the `ps -e` command as `cifx0daemon` process.
 
