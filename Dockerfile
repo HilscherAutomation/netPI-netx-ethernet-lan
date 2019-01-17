@@ -1,5 +1,5 @@
 #use latest armv7hf compatible debian version from group resin.io as base image
-FROM resin/armv7hf-debian:stretch
+FROM balenalib/armv7hf-debian:stretch
 
 #enable building ARM container on x86 machinery on the web (comment out next line if not built as automated build on docker hub) 
 RUN [ "cross-build-start" ]
