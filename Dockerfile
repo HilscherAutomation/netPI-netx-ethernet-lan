@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.4
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.5
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -27,7 +27,7 @@ COPY "./driver/*" "./firmware/*" /tmp/
 
 #do installation
 RUN apt-get update  \
-    && apt-get install -y openssh-server build-essential network-manager ifupdown \
+    && apt-get install -y openssh-server build-essential network-manager ifupdown isc-dhcp-client \
 #do users root and pi    
     && useradd --create-home --shell /bin/bash pi \
     && echo 'root:root' | chpasswd \
@@ -43,8 +43,6 @@ RUN apt-get update  \
     && gcc /tmp/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
 #enable automatic interface management
     && sudo sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf \
-#copy the cifx0 interface configuration file 
-    && cp /tmp/cifx0 /etc/network/interfaces.d \
 #clean up
     && rm -rf /tmp/* \
     && apt-get remove build-essential \

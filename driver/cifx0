@@ -1,6 +1,0 @@
-auto cifx0
-
-iface cifx0 inet static
-   address 192.168.253.1
-   network 255.255.255.0
-

@@ -29,6 +29,14 @@ To grant access to the netX from inside the container the `/dev/spidev0.0` host 
 
 To allow the container creating an additional network device for the netX network controller the `/dev/net/tun` host device needs to be expose to the container.
 
+##### Environment Variables
+
+The assignment of the Ethernet network interface's IP address is configured through the following variables
+
+* **IP_ADDRESS** with a value in the format `x.x.x.x` e.g. 192.168.0.1 configures the interface's IP address. A value `dhcp` instead enables the dhcp mode and the interface waits to receive its IP address through a DCHP server.
+* **SUBNET_MASK** with a value in the format `x.x.x.x` e.g. 255.255.255.0 configures the interface's subnet mask. It is not necessary to configure in dhcp mode.
+* **GATEWAY** with a value in the format `x.x.x.x` e.g. 192.168.0.10 configures the interface's gateway address. It is not necessary to configure in dhcp mode.
+
 #### Getting started
 
 STEP 1. Open netPI's website in your browser (https).
@@ -44,6 +52,9 @@ Parameter | Value | Remark
 *Restart policy* | **always**
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
+*Runtime > Env* | *name* **IP_ADDRESS** -> *value* **e.g.192.168.0.1** | value `dhcp` enables dhcp mode
+*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | not needed in `dhcp` mode
+*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | not needed in `dhcp` mode
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
@@ -58,7 +69,7 @@ Login to the container with an SSH client such as [putty](http://www.putty.org/)
 
 Use a command e.g. `ip add show` to list all available network interfaces. You will recognize the additional netX network interface named `cifx0` next to standard `eth0`. 
 
-At runtime you find the `cifx0` Ethernet configuration file in `/etc/network/interfaces.d/cifx0` or offline in the repository's folder `driver`. By default the interface is configured to a static ip address 192.168.253.1. Modify the file in accordance to [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) to meet your demands. If online make sure you deleted the running `cifx0` setup with a command e.g. `ip add del x.x.x.x/x dev cifx0` before you restart the networking server after your modification with `/etc/init.d/networking restart`. Else the interface is assigned a secondary, third ... parallel setup to.
+At runtime you find the dynamically created (depending on the environment variables) `cifx0` Ethernet configuration file at `/etc/network/interfaces.d/cifx0`. If no variables have been defined at all a static ip address 192.168.253.1 is configured. The file follows the [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) specification. If online changes in the file are made make sure you deleted the running `cifx0` Ethernet setup with a command e.g. `ip add del x.x.x.x/x dev cifx0` before you restart the networking server after your file modifications with `/etc/init.d/networking restart`. Else the interface is assigned a secondary, third ... parallel setup to.
 
 #### Limitation
 
