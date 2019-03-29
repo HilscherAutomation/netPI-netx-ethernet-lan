@@ -1,16 +1,25 @@
-#use latest armv7hf compatible debian version from group resin.io as base image
+#use armv7hf compatible base image
 FROM balenalib/armv7hf-debian:stretch
+
+#dynamic build arguments coming from the /hooks/build file
+ARG BUILD_DATE
+ARG VCS_REF
+
+#metadata labels
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/HilscherAutomation/netPI-netx-ethernet-lan" \
+      org.label-schema.vcs-ref=$VCS_REF
 
 #enable building ARM container on x86 machinery on the web (comment out next line if not built as automated build on docker hub) 
 RUN [ "cross-build-start" ]
 
-#labeling
-LABEL maintainer="netpi@hilscher.com" \
-      version="V0.9.4" \
-      description="netX based TCP/IP network interface"
-
 #version
 ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.4
+
+#labeling
+LABEL maintainer="netpi@hilscher.com" \
+      version=$HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION \
+      description="netX based TCP/IP network interface"
 
 #copy files
 COPY "./init.d/*" /etc/init.d/ 

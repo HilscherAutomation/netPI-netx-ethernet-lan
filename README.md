@@ -1,5 +1,10 @@
 ## Ethernet LAN on Industrial Ethernet ports
 
+[![](https://images.microbadger.com/badges/image/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Ethernet LAN on Industrial Ethernet ports")
+[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://microbadger.com/images/hilschernetpi//netpi-netx-ethernet-lan "Ethernet LAN on Industrial Ethernet ports")
+[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://registry.hub.docker.com/u/hilschernetpi/netpi-netx-ethernet-lan/)&nbsp;
+[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-netx-ethernet-lan&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Image last updated")&nbsp;
+
 Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
 
 ### Using netPI RTE 3 Industrial Ethernet network ports as standard Ethernet interface
@@ -26,25 +31,23 @@ To allow the container creating an additional network device for the netX networ
 
 #### Getting started
 
-STEP 1. Open netPI's landing page under `https://<netpi's ip address>`.
+STEP 1. Open netPI's website in your browser (https).
 
 STEP 2. Click the Docker tile to open the [Portainer.io](http://portainer.io/) Docker management user interface.
 
-STEP 3. Enter the following parameters under **Containers > Add Container**
+STEP 3. Enter the following parameters under *Containers > + Add Container*
 
-* **Image**: `hilschernetpi/netpi-netx-ethernet-lan`
+Parameter | Value | Remark
+:---------|:------ |:------
+*Image* | **hilschernetpi/netpi-netx-ethernet-lan**
+*Port mapping* | *host* **22** -> *container* **22** | *host*=any unused
+*Restart policy* | **always**
+*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
+*Runtime > Privileged mode* | **On** |
 
-* **Restart policy"** : `always`
+STEP 4. Press the button *Actions > Start/Deploy container*
 
-* **Port mapping**: `Host "22" (any unused one) -> Container "22"`
-
-* **Runtime > Privileged mode** : `On`
-
-* **Runtime > Devices > add device**: `Host "/dev/spidev0.0" -> Container "/dev/spidev0.0"` and `Host "/dev/net/tun" -> Container "/dev/net/tun"`
-
-STEP 4. Press the button **Actions > Start/Deploy container**
-
-Pulling the image may take a while (5-10mins). Sometimes it takes so long that a time out is indicated. In this case repeat the **Actions > Start/Deploy container** action.
+Pulling the image may take a while (5-10mins). Sometimes it may take too long and a time out is indicated. In this case repeat STEP 4.
 
 #### Accessing
 
