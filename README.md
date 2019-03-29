@@ -43,6 +43,7 @@ Parameter | Value | Remark
 *Port mapping* | *host* **22** -> *container* **22** | *host*=any unused
 *Restart policy* | **always**
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
+*Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
