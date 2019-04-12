@@ -27,7 +27,7 @@ COPY "./driver/*" "./firmware/*" /tmp/
 
 #do installation
 RUN apt-get update  \
-    && apt-get install -y openssh-server build-essential network-manager ifupdown isc-dhcp-client \
+    && apt-get install -y openssh-server build-essential ifupdown isc-dhcp-client \
 #do users root and pi    
     && useradd --create-home --shell /bin/bash pi \
     && echo 'root:root' | chpasswd \
@@ -41,8 +41,6 @@ RUN apt-get update  \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
 #compile netX network daemon
     && gcc /tmp/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
-#enable automatic interface management
-    && sudo sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf \
 #clean up
     && rm -rf /tmp/* \
     && apt-get remove build-essential \
