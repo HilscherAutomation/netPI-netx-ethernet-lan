@@ -23,7 +23,7 @@ echo "starting ssh ..."
 # create the corresponding Ethernet configuration file 
 if [ -z "$IP_ADDRESS" ]
 then 
-   ip addr add 192.168.253.1/255.255.255.0 dev cifx0
+   ip addr add 192.168.253.1/255.255.255.0 broadcast 192.168.253.255 dev cifx0
    ip link set cifx0 up
 else 
 
@@ -31,7 +31,10 @@ else
    then
      dhclient cifx0
    else
-     ip addr add $IP_ADDRESS/$SUBNET_MASK broadcast $GATEWAY dev cifx0
+     IFS=. read -r i1 i2 i3 i4 <<< "$IP_ADDRESS”
+     IFS=. read -r m1 m2 m3 m4 <<< "$SUBNET_MASK"
+     BROADCAST=$((i1 & m1 | 255-m1)).$((i2 & m2 | 255-m2)).$((i3 & m3 | 255-m3)).$((i4 & m4 | 255-m4))
+     ip addr add $IP_ADDRESS/$SUBNET_MASK broadcast $BROADCAST dev cifx0
      ip link set cifx0 up
    fi
 fi
