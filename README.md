@@ -67,15 +67,16 @@ The container starts the SSH server, the netX network interface daemon of `cifx0
 
 Login to the container with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
-Use a command e.g. `ip add show` to list all available network interfaces. You will recognize the additional netX network interface named `cifx0` next to standard `eth0`. 
+Use a command e.g. `ip addr show` to list all available network interfaces. You will recognize the additional netX network interface named `cifx0` next to the standard Ethernet interface `eth0`. 
 
-At runtime you find the dynamically created (depending on the environment variables) `cifx0` Ethernet configuration file at `/etc/network/interfaces.d/cifx0`. If no variables have been defined at all a static ip address 192.168.253.1 is configured. The file follows the [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration) specification. If online changes in the file are made make sure you deleted the running `cifx0` Ethernet setup with a command e.g. `ip add del x.x.x.x/x dev cifx0` before you restart the networking server after your file modifications with `/etc/init.d/networking restart`. Else the interface is assigned a secondary, third ... parallel setup to.
+Depending on the given environment variables the `cifx0` Ethernet configuration is set by the container's entrypoint script `entrypoint.sh` using the command `ip`. If the variable IP_ADDRESS has not been defined a static ip address 192.168.253.1 at
+subnet 255.255.255.0 is configured. 
 
-#### Limitation
+#### Limitations
 
-The `cifx0` interface does not support Ethernet package reception of type multicast.
+The `cifx0` interface DOES NOT support Ethernet package reception of type multicast.
 
-Servicing the `cifx0` interface is only possible in the container it was created. It is not available to the Docker host or to any other containers started.
+Servicing the `cifx0` interface is only possible in the container it was created. Even if you have started the container in network mode `host`.
 
 Since netX network controller is a single resource a `cifx0` interface can only be created once (in one container) at a time on netPI.
 
