@@ -31,7 +31,7 @@ else
    then
      dhclient cifx0
    else
-     IFS=. read -r i1 i2 i3 i4 <<< "$IP_ADDRESS”
+     IFS=. read -r i1 i2 i3 i4 <<< "$IP_ADDRESS"
      IFS=. read -r m1 m2 m3 m4 <<< "$SUBNET_MASK"
      BROADCAST=$((i1 & m1 | 255-m1)).$((i2 & m2 | 255-m2)).$((i3 & m3 | 255-m3)).$((i4 & m4 | 255-m4))
      ip addr add $IP_ADDRESS/$SUBNET_MASK broadcast $BROADCAST dev cifx0
