@@ -20,6 +20,9 @@ echo "starting ssh ..."
 # create netx "cifx0" ethernet network interface 
 /opt/cifx/cifx0daemon
 
+# bring interface up first of all
+ip link set cifx0 up
+
 # ip address configured as environment variable?
 if [ -z "$IP_ADDRESS" ]
 then
@@ -52,17 +55,23 @@ else
 
   echo "cifx0 ip address/subnet mask set to" $IP_ADDRESS"/"$SUBNET_MASK
   
-  #is a getway set?
+  #is a gateway set?
   if [ -n $GATEWAY ]
   then
-    NETWORK=$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).$((i4 & m4))
-    ip route add $GATEWAY dev cifx0
-    ip route add $NETWORK/$SUBNET_MASK via $GATEWAY dev cifx0
-  fi
+    echo "gateway set to" $GATEWAY
+    
+    # flush default routes
+    ip route flush dev cifx0
   
-  ip link set cifx0 up
-fi
+    # make gateway known
+    ip route add $GATEWAY dev cifx0
 
+    # set route via gateway
+    NETWORK=$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).$((i4 & m4))
+    ip route add $NETWORK/$SUBNET_MASK via $GATEWAY src $IP_ADDRESS dev cifx0
+  
+  fi
+fi
 
 # wait forever not to exit the container
 while true
