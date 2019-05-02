@@ -31,7 +31,7 @@ then
 fi
 
 # subnet mask configured as environment variable?
-if [ -z "$SUBNET_MASK" ]
+if [ -z "${$SUBNET_MASK}" ]
 then
   # set alternative
   SUBNET_MASK="255.255.255.0"
@@ -56,7 +56,7 @@ else
   echo "cifx0 ip address/subnet mask set to" $IP_ADDRESS"/"$SUBNET_MASK
   
   #is a gateway set?
-  if [ -n $GATEWAY ]
+  if [ -n "${GATEWAY}" ]
   then
     echo "gateway set to" $GATEWAY
     
