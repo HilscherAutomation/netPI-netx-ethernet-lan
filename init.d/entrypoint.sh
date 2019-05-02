@@ -31,7 +31,7 @@ then
 fi
 
 # subnet mask configured as environment variable?
-if [ -z "${$SUBNET_MASK}" ]
+if [ -z "${SUBNET_MASK}" ]
 then
   # set alternative
   SUBNET_MASK="255.255.255.0"
