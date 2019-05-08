@@ -39,8 +39,9 @@ RUN apt-get update  \
 #install netX driver and netX ethernet supporting firmware
     && dpkg -i /tmp/netx-docker-pi-drv-1.1.3-r1.deb \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
-#compile netX network daemon
-    && gcc /tmp/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
+#compile netX network daemon that creates the cifx0 ethernet interface
+    && cp /tmp/cifx0daemon.c /opt/cifx/cifx0daemon.c \
+    && gcc /opt/cifx/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
 #clean up
     && rm -rf /tmp/* \
     && apt-get remove build-essential \
