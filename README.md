@@ -21,7 +21,7 @@ For enabling remote login to the container across SSH the container's SSH port 2
 
 ##### Privileged mode
 
-The container creates an Ethernet network interface (LAN) from netPI's Industrial network controller netX. Creating a LAN in general needs full access to the Docker host. Also the netX driver needs access to the Docker host GPIO interface to poll for pending incoming Ethernet frames.  Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface and to access the GPIO interface in a container.
+The container creates an Ethernet network interface (LAN) from netPI's industrial network controller netX. Creating a LAN in general needs full access to the Docker host. Also the netX driver needs access to the Docker host GPIO interface to poll for pending incoming Ethernet frames.  Only the privileged mode option lifts the enforced container limitations to allow creation of such a network interface and to access the GPIO interface in a container.
 
 ##### Host devices
 
@@ -79,6 +79,20 @@ The `cifx0` interface DOES NOT support Ethernet package reception of type multic
 Servicing the `cifx0` interface is only possible in the container it was created. Even if you have started the container in network mode `host`.
 
 Since netX network controller is a single resource a `cifx0` interface can only be created once (in one container) at a time on netPI.
+
+#### Ethernet frame throughput
+
+netPI RTE 3's Industrial network controller netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data from and to a master PLC and any Host application via IO buffers periodically. The controller was not designed to support high performance message oriented exchange of data as used with Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer but is still a good compromise to the add another Ethernet interface to netPI on demand.
+
+Measurements have shown that around 1MByte/s throughput can be reached across `cifx0` whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached in the middle. The reasons for this is the following:
+
+* 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
+* User space driver instead of a kernel driver, but enabling its use in a container
+* No interrupt support between netX and Raspberry Pi CPU requiring polling in msecs instead
+* 8 messages deep message receive queue only for incoming Ethernet frames
+* SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
+
+`cifx0` will drop Ethernet frames in case its message queue is being overun at high traffic. A TCP/IP based protocol embeds a recovery from this state when frames are lost. This is why you usually do not recognize a problem when this happens. Using single frame communications with no additional protocol for data repetition like the ping command could result in lost frames indeed.
 
 #### Driver, Firmware and Daemon
 
