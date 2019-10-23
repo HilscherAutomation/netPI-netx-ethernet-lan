@@ -1,6 +1,27 @@
 #!/bin/bash +e
-# catch signals as PID 1 in a container
 
+#check if container is running in privileged mode
+ip link add dummy0 type dummy >/dev/null 2>&1
+if [[ -z `grep "dummy0" /proc/net/dev` ]]; then
+  echo "Container not running in privileged mode. Sure you configured privileged mode? Container stopped."
+  exit 143
+fi
+
+
+#check access to SPI netX interface
+if [[ ! -e "/dev/spidev0.0" ]]; then
+  echo "Container access to /dev/spidev0.0 not possible. Device /dev/spidev0.0 is not mapped. Container stopped."
+  exit 143
+fi
+
+#check access to network creating interface
+if [[ ! -e "/dev/net/tun" ]]; then
+  echo "Container access to /dev/net/tun not possible. Device /dev/net/tun is not mapped. Container stopped."
+  exit 143
+fi
+
+
+# catch signals as PID 1 in a container
 # SIGNAL-handler
 term_handler() {
 

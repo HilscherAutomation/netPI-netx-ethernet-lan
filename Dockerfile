@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 0.9.5
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.0.0
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
