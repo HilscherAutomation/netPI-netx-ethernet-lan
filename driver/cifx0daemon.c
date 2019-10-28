@@ -209,6 +209,14 @@ int main(int argc, char* argv[])
           // kill child process also
           kill( pid, SIGTERM);
 
+          // output log file
+          FILE* fp = fopen("/opt/cifx/cifX0.log", "r");
+          int c; // note: int, not char, required to handle EOF
+          while ((c = fgetc(fp)) != EOF) { // standard C I/O file reading loop
+            putchar(c);
+          }
+          fclose(fp);
+
           break;
         }
 
