@@ -126,11 +126,44 @@ int main(int argc, char* argv[])
 
           if( CIFX_NO_ERROR == (lRet = xSysdeviceInfo(hSysdevice, CIFX_INFO_CMD_SYSTEM_INFO_BLOCK, sizeof(SYSTEM_CHANNEL_SYSTEM_INFO_BLOCK), &tSystemInfoBlock ))) {
 
-            if( (long unsigned int)tSystemInfoBlock.ulDeviceNumber / 100 == 76601) {
+            if( memcmp(&tSystemInfoBlock.abCookie, "BOOT",4) == 0) {
 
-              // netPI device detected, suspend until signal
+              // the netX is in bootloader mode, no firmware loaded, formatting file system
 
-              sem_wait(&sem);
+              RCX_FORMAT_REQ_T tRcXFormatReq;
+
+              tRcXFormatReq.tHead.ulSrc = 0;
+              tRcXFormatReq.tHead.ulDest = 0;
+              tRcXFormatReq.tHead.ulLen = sizeof(RCX_FORMAT_REQ_DATA_T);
+              tRcXFormatReq.tHead.ulCmd = RCX_FORMAT_REQ;
+
+              tRcXFormatReq.tData.ulFlags = RCX_FORMAT_REQ_DATA_FLAGS_QUICKFORMAT;
+              tRcXFormatReq.tData.ulReserved = 0;
+
+              if( CIFX_NO_ERROR == (lRet = xSysdevicePutPacket(hSysdevice,(CIFX_PACKET*)&tRcXFormatReq,0))) {
+
+                RCX_FORMAT_CNF_T tRcXFormatCnf;
+
+                if( CIFX_NO_ERROR == (lRet = xSysdeviceGetPacket(hSysdevice, sizeof(RCX_FORMAT_CNF_T), (CIFX_PACKET*)&tRcXFormatCnf, 10000))) {
+
+                  if( tRcXFormatCnf.tHead.ulSta == RCX_S_OK ) {
+
+                    printf("netX file system successfully restored. Restart application\n");
+
+                  }
+
+                }
+
+              }
+           } else {
+
+             if( (long unsigned int)tSystemInfoBlock.ulDeviceNumber / 100 == 76601) {
+
+               // netPI device detected, suspend until signal
+
+                sem_wait(&sem);
+
+              }
 
             }
 
