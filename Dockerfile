@@ -1,5 +1,5 @@
 #use armv7hf compatible base image
-FROM balenalib/armv7hf-debian:stretch
+FROM balenalib/armv7hf-debian:buster-20191223
 
 #dynamic build arguments coming from the /hooks/build file
 ARG BUILD_DATE
@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.0.2
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.1.0
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -23,7 +23,7 @@ LABEL maintainer="netpi@hilscher.com" \
 
 #copy files
 COPY "./init.d/*" /etc/init.d/ 
-COPY "./driver/*" "./firmware/*" /tmp/
+COPY "./driver/*" "./driver/includes/" "./firmware/*" /tmp/
 
 #do installation
 RUN apt-get update  \
@@ -37,9 +37,11 @@ RUN apt-get update  \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
 #install netX driver and netX ethernet supporting firmware
-    && dpkg -i /tmp/netx-docker-pi-drv-1.1.3-r1.deb \
+    && dpkg -i /tmp/netx-docker-pi-drv-2.0.1-r0.deb \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
 #compile netX network daemon that creates the cifx0 ethernet interface
+    && echo "Irq=/sys/class/gpio/gpio24/value" >> /opt/cifx/plugins/netx-spm/config0 \
+    && cp /tmp/*.h /usr/include/cifx \
     && cp /tmp/cifx0daemon.c /opt/cifx/cifx0daemon.c \
     && gcc /opt/cifx/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
 #clean up

@@ -2,7 +2,7 @@
 
 [![](https://images.microbadger.com/badges/image/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Ethernet LAN on Industrial Ethernet ports")
 [![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://microbadger.com/images/hilschernetpi//netpi-netx-ethernet-lan "Ethernet LAN on Industrial Ethernet ports")
-[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://registry.hub.docker.com/u/hilschernetpi/netpi-netx-ethernet-lan/)&nbsp;
+[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-netx-ethernet-lan/)&nbsp;
 [![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-netx-ethernet-lan&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Image last updated")&nbsp;
 
 Made for [netPI RTE 3](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
@@ -17,15 +17,23 @@ netPI features a restricted Docker protecting the system software's integrity by
 
 ### Container features
 
-The image provided hereunder deploys a container with installed software turning netPI's Industrial Ethernet ports into a two-ported (switched) standard Ethernet network interface with a single IP address named `cifx0`.
+The image provided hereunder deploys a container that turns netPI's Industrial Ethernet ports into a two-ported (switched, with a single IP address ) standard Ethernet network interface named `cifx0`.
 
-Base of this image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell), created user 'root', installed netX driver, network interface daemon and standard Ethernet supporting netX firmware creating an additional network interface named `cifx0`(**c**ommunication **i**nter**f**ace **x**).  The interface can be administered with standard commands such as [ip](https://linux.die.net/man/8/ip) or similar.
+Base of this image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell), created user 'root', installed netX driver, network interface daemon and netX Ethernet LAN firmware creating an additional network interface named `cifx0`(**c**ommunication **i**nter**f**ace **x**).  The interface can be administered with standard commands such as [ip](https://linux.die.net/man/8/ip) or similar.
+
+For lowering the CPU load during LAN communications the container configures the GPIO24 as input signal triggering interrupts from the netX controller to the netPI CPU in case of prending frames.
 
 ### Container setup
 
-#### Port mapping
+#### Port mapping (optional)
 
 For enabling remote login to the container across SSH the container's SSH port 22 needs to be exposed to the host.
+
+#### Host network
+
+The container can run either in `host` or in `bridged` network mode. 
+
+Using the `host` mode makes port mapping unnecessary since all used container ports (like 22) are exposed to the host in this mode automatically.
 
 #### Privileged mode
 
@@ -39,11 +47,19 @@ To allow the container creating an additional network device for the netX networ
 
 #### Environment variables
 
+##### In `bridge` network mode
+
 The configuration of the LAN interface `cifx0` is done with the following variables
 
 * IP_ADDRESS with a value in the format `x.x.x.x` e.g. 192.168.0.1 configures the interface IP address. A value `dhcp` instead enables the dhcp mode and the interface waits to receive its IP address through a DCHP server.
 * SUBNET_MASK with a value in the format `x.x.x.x` e.g. 255.255.255.0 configures the interface subnet mask. Not necessary to configure in dhcp mode.
 * GATEWAY with a value in the format `x.x.x.x` e.g. 192.168.0.10 configures the interface gateway address. A gateway is optional. Not necessary to configure in dhcp mode.
+
+##### In `host` network mode
+
+If the container is configured to run in `host` network mode the container's host system takes over responsibility of the `cifx0` interface. 
+
+This is why in this mode the `cifx0` IP settings are not configured with environment variables but configured in the netPI's network/LAN settings dialog (like "eth0" interface). Any change on the IP settings there needs a container restart to accept the new IP parameters.
 
 ### Container deployment
 
@@ -56,13 +72,14 @@ STEP 3. Enter the following parameters under *Containers > + Add Container*
 Parameter | Value | Remark
 :---------|:------ |:------
 *Image* | **hilschernetpi/netpi-netx-ethernet-lan**
-*Port mapping* | *host* **22** -> *container* **22** | *host*=any unused
+*Port mapping* | *host* **22** -> *container* **22** | *host*=any unused, no need in `host` mode
+*Network > Network* | **host** or **bridged** | use alternatively
 *Restart policy* | **always**
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
-*Runtime > Env* | *name* **IP_ADDRESS** -> **e.g.192.168.0.1** or **dhcp** | 
-*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | no need for `dhcp`
-*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | no need for `dhcp`
+*Runtime > Env* | *name* **IP_ADDRESS** -> **e.g.192.168.0.1** or **dhcp** | not in `host` mode
+*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
+*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
@@ -71,7 +88,7 @@ Pulling the image may take a while (5-10mins). Sometimes it may take too long an
 
 ### Container access
 
-The container starts the SSH server, the netX network interface daemon of `cifx0` and configures it according to the set environment variables. If the variable IP_ADDRESS is not found configured an ip address of 192.168.253.1 at subnet mask 255.255.255.0 is automatically set.
+The container starts the SSH server, the netX network interface daemon of `cifx0`. In `bridged` mode it configures the interface according to the set environment variables. If the variable IP_ADDRESS is not found configured an ip address of 192.168.253.1 at subnet mask 255.255.255.0 is automatically set.
 
 You may optionally login to the container with an SSH client such as [putty](http://www.putty.org/) using netPI's IP address at your mapped port. Use the credentials `root` as user and `root` as password when asked and you are logged in as user root.
 
@@ -80,8 +97,6 @@ Use then a command e.g. `ip addr show` to list all available network interfaces.
 ### Container limitations
 
 The `cifx0` interface DOES NOT support Ethernet package reception of type multicast.
-
-Servicing the `cifx0` interface is only possible in the container it was created. Even if you have started the container in network mode `host`.
 
 Since netX network controller is a single resource a `cifx0` interface can only be created on netPI once (in one container) at a time.
 
@@ -93,7 +108,6 @@ Measurements have shown that around 1MByte/s throughput can be reached across `c
 
 * 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
 * User space driver instead of a kernel driver, but enabling its use in a container
-* No interrupt support between netX and Raspberry Pi CPU requiring polling in msecs instead
 * 8 messages deep message receive queue only for incoming Ethernet frames
 * SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
 
@@ -105,7 +119,7 @@ There are three components necessary to get the `cifx0` recognized as Ethernet i
 
 ##### Driver
 
-There is the netX driver in the repository's folder `driver` negotiating the communication between the Raspberry CPU and netX. The driver is installed using the command `dpkg -i netx-docker-pi-drv-x.x.x.deb` and comes preinstalled in the container. The driver communicates across the device `/dev/spidev0.0` with netX and uses the GPIO24 pin to poll for incoming Ethernet frames indicated by netX across this pin. If GPIO24 is not found already created when the driver is started, the driver creates it under `/sys/class/gpio/` itself.
+There is the netX driver in the repository's folder `driver` negotiating the communication between the Raspberry CPU and netX. The driver is installed using the command `dpkg -i netx-docker-pi-drv-x.x.x.deb` and comes preinstalled in the container. The driver communicates across the device `/dev/spidev0.0` with netX and uses the GPIO24 signal as interrupt signal. The GPIO24 is configured to input signal in the container's start script.
 
 ##### Firmware
 
