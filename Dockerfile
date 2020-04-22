@@ -10,11 +10,8 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/HilscherAutomation/netPI-netx-ethernet-lan" \
       org.label-schema.vcs-ref=$VCS_REF
 
-#enable building ARM container on x86 machinery on the web (comment out next line if not built as automated build on docker hub) 
-RUN [ "cross-build-start" ]
-
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.1.0
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.1.1
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -57,5 +54,3 @@ ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
 #set STOPSGINAL
 STOPSIGNAL SIGTERM
 
-#stop processing ARM emulation (comment out next line if not built as automated build on docker hub)
-RUN [ "cross-build-end" ]
