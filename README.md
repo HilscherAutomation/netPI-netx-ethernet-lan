@@ -5,7 +5,7 @@
 [![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-netx-ethernet-lan/)&nbsp;
 [![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-netx-ethernet-lan&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Image last updated")&nbsp;
 
-Made for Raspberry Pi 3B architecture based devices and compatibles featuring a netX51 Industrial network controller
+Made for Raspberry Pi 3B architecture based devices and compatibles featuring a netX51 industrial network controller
 
 ### Container features
 
@@ -89,7 +89,7 @@ STEP 4. Press the button *Actions > Start/Deploy container*
 
 #### Docker command line example
 
-`docker run -d --privileged --network=host --restart=always --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/net/tun:/dev/net/tun -p 22:22/tcp hilschernetpi/netpi-netx-ethernet-lan`
+`docker run -d --privileged --network=host --restart=always --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/net/tun:/dev/net/tun hilschernetpi/netpi-netx-ethernet-lan`
 
 #### Docker compose example
 
@@ -111,12 +111,12 @@ A `docker-compose.yml` file could look like this
 
 The netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data with a network master across IO buffers. It was not designed to support high performance message oriented exchange of data as used in Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer but is still a good compromise if another Ethernet interface is needed.
 
-Measurements have shown that around 700 to 800KByte/s throughput can be reached across `cifx0` only whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached. The reasons are:
+Measurements have shown that around 700 to 800KByte/s throughput can be reached across `cifx0` only whereas with the RPi's CPU primary Ethernet port `eth0` 10MByte/s can be reached. The reasons are:
 
-* 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
+* 25MHz SPI clock frequency between netX and RPi CPU only
 * User space driver instead of a kernel driver
 * 8 messages deep message receive queue only for incoming Ethernet frames
-* SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
+* SPI handshake protocol with additional overhead between netX and RPi during message based communications
 
 The `cifx0` LAN interface will drop Ethernet frames in case its message queue is being overun at high LAN network traffic. The TCP/IP network protocol embeds a recovery procedure for packet loss due to retransmissions. This is why you usually do not recognize a problem when this happens. Single frame communications using non TCP/IP based traffic like the ping command may recognize lost frames.
 
