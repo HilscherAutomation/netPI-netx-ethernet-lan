@@ -11,7 +11,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.1.1
+ENV HILSCHERNETPI_NETX_TCPIP_NETWORK_INTERFACE_VERSION 1.1.2
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -24,15 +24,7 @@ COPY "./driver/*" "./driver/includes/" "./firmware/*" /tmp/
 
 #do installation
 RUN apt-get update  \
-    && apt-get install -y openssh-server build-essential ifupdown isc-dhcp-client \
-#do users root and pi    
-    && useradd --create-home --shell /bin/bash pi \
-    && echo 'root:root' | chpasswd \
-    && echo 'pi:raspberry' | chpasswd \
-    && adduser pi sudo \
-    && mkdir /var/run/sshd \
-    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-    && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
+    && apt-get install -y build-essential ifupdown isc-dhcp-client psmisc \
 #install netX driver and netX ethernet supporting firmware
     && dpkg -i /tmp/netx-docker-pi-drv-2.0.1-r0.deb \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \

@@ -7,7 +7,6 @@ if [[ -z `grep "dummy0" /proc/net/dev` ]]; then
   exit 143
 fi
 
-
 #check access to SPI netX interface
 if [[ ! -e "/dev/spidev0.0" ]]; then
   echo "Container access to /dev/spidev0.0 not possible. Device /dev/spidev0.0 is not mapped. Container stopped."
@@ -20,13 +19,13 @@ if [[ ! -e "/dev/net/tun" ]]; then
   exit 143
 fi
 
-
 # catch signals as PID 1 in a container
 # SIGNAL-handler
 term_handler() {
 
-  echo "terminating ssh ..."
-  /etc/init.d/ssh stop
+  #remove cifx0 interface from system
+  killall cifx0deamon
+  ip link delete cifx0
 
   exit 143; # 128 + 15 -- SIGTERM
 }
@@ -37,7 +36,7 @@ trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SI
 #check presence of device spi0.0 and net device register
 if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
 
-  echo "cifx0 hardware support (TCP/IP over RTE LAN ports) configured." 
+  echo "Provisioning 'cifx0' interface now." 
 
   #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
   if [[ ! -e "/sys/class/gpio/gpio24" ]]; then 
@@ -50,17 +49,13 @@ if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
   # create netx "cifx0" ethernet network interface 
   /opt/cifx/cifx0daemon
 
-  # bring interface up first of all
+  # bring interface up now
   ip link set cifx0 up
 
 else
-  echo "cifx0 hardware support (TCP/IP over RTE LAN ports) not configured. Container stopped." 
+  echo "'cifx0' interface cannot be provisioned." 
   exit 143
 fi
-
-# run applications in the background
-echo "starting ssh ..."
-/etc/init.d/ssh start
 
 #check if container is running in bridged mode
 if [[ -z `grep "docker0" /proc/net/dev` ]]; then
