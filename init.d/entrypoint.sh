@@ -23,9 +23,11 @@ fi
 # SIGNAL-handler
 term_handler() {
 
-  #remove cifx0 interface from system
-  killall cifx0deamon
-  ip link delete cifx0
+  #remove cifx0 interface from system if created by the container
+  if ps -A | grep -q "cifx0daemon" ; then
+    killall cifx0deamon
+    ip link delete cifx0
+  fi
 
   exit 143; # 128 + 15 -- SIGTERM
 }
@@ -36,21 +38,26 @@ trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SI
 #check presence of device spi0.0 and net device register
 if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
 
-  echo "Provisioning 'cifx0' interface now." 
 
-  #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
-  if [[ ! -e "/sys/class/gpio/gpio24" ]]; then 
-    echo 24 > /sys/class/gpio/export
+  #check if cifx0 interface is not running already
+  if ! ip addr show | grep -q "cifx0" ; then
+
+    echo "Provisioning 'cifx0' interface now." 
+
+    #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
+    if [[ ! -e "/sys/class/gpio/gpio24" ]]; then 
+      echo 24 > /sys/class/gpio/export
+    fi
+    echo rising > /sys/class/gpio/gpio24/edge
+    echo in > /sys/class/gpio/gpio24/direction
+    echo 1 > /sys/class/gpio/gpio24/active_low
+
+    # create netx "cifx0" ethernet network interface 
+    /opt/cifx/cifx0daemon
+
+    # bring interface up now
+    ip link set cifx0 up
   fi
-  echo rising > /sys/class/gpio/gpio24/edge
-  echo in > /sys/class/gpio/gpio24/direction
-  echo 1 > /sys/class/gpio/gpio24/active_low
-
-  # create netx "cifx0" ethernet network interface 
-  /opt/cifx/cifx0daemon
-
-  # bring interface up now
-  ip link set cifx0 up
 
 else
   echo "'cifx0' interface cannot be provisioned." 
