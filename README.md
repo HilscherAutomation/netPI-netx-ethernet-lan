@@ -122,6 +122,8 @@ The `cifx0` LAN interface will drop Ethernet frames in case its message queue is
 
 The `cifx0` LAN interface DOES NOT support Ethernet package reception of type multicast.
 
+The `cifx0` LAN interface DOES NOT support the [promiscuous mode](https://en.wikipedia.org/wiki/Promiscuous_mode) that is a precondition to support bridging the `cifx0` interface with others.
+
 Since netX is a single hardware resource a `cifx0` interface can only be created once at a time on a Docker host.
 
 #### Container Driver, Firmware and Daemon
