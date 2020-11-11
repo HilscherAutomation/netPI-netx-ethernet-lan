@@ -59,7 +59,7 @@ If the variable IP_ADDRESS is not configured it defaults to 192.168.253.1 at sub
 
 ##### In `host` network mode
 
-If the container runs in `host` network mode the interface is instantiated on the Docker host as a standard LAN interface. This is why the `cifx0` IP settings have to be configured in the Docker host's web UI network setup dialog (as "eth0" interface) and not in the container. Any change on the IP settings needs a container restart to accept the new IP parameters.
+If the container runs in `host` network mode the interface is instantiated on the Docker host as a standard LAN interface. This is why the `cifx0` IP settings have to be configured in the Docker host's web UI network setup dialog (as "eth0" interface) and not in the container. After a change a container restart is necessary while no Ethernet cable is plugged into this interface.
 
 ### Container deployment
 
