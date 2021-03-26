@@ -1,11 +1,10 @@
 ## TCP/IP over RTE Industrial Ethernet ports
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://microbadger.com/images/hilschernetpi//netpi-netx-ethernet-lan "Ethernet LAN on Industrial Ethernet ports")
-[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-netx-ethernet-lan.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-netx-ethernet-lan/)&nbsp;
-[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-netx-ethernet-lan&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-netx-ethernet-lan "Image last updated")&nbsp;
-
 Made for Raspberry Pi 3B architecture based devices and compatibles featuring a netX51 industrial network controller
+
+### Docker repository
+
+https://hub.docker.com/r/hilschernetpi/netpi-netx-ethernet-lan
 
 ### Container features
 
@@ -21,7 +20,9 @@ The container has been successfully tested on the following Docker hosts
 
 * netPI, model RTE 3, product name NIOT-E-NPI3-51-EN-RE
 * netIOT Connect, product name NIOT-E-TPI51-EN-RE
-* netFIELD Connect, product name NIOT-E-TPI51-EN-RE/NFLD
+* netFIELD Connect, product name NIOT-E-TPI51-EN-RE/NFLD (only if netFIELD OS cifx0 driver deactivated)
+
+### netPI Docker restrictions
 
 netPI devices specifically feature a restricted Docker protecting the Docker host system software's integrity by maximum. The restrictions are
 
@@ -78,12 +79,12 @@ Parameter | Value | Remark
 *Image* | **hilschernetpi/netpi-netx-ethernet-lan**
 *Network > Network* | **host** or **bridged** | use alternatively
 *Restart policy* | **always**
-*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
-*Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
-*Runtime > Env* | *name* **IP_ADDRESS** -> **e.g.192.168.0.1** or **dhcp** | not in `host` mode
-*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
-*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
-*Runtime > Privileged mode* | **On** |
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
+*Adv.con.set. > Env > +add env.var.* | *name* **IP_ADDRESS** -> **e.g.192.168.0.1** or **dhcp** | not in `host` mode
+*Adv.con.set. > Env > +add env.var.* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
+*Adv.con.set. > Env > +add env.var.* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
+*Adv.con.set. > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
