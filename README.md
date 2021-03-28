@@ -78,13 +78,13 @@ Parameter | Value | Remark
 :---------|:------ |:------
 *Image* | **hilschernetpi/netpi-netx-ethernet-lan**
 *Network > Network* | **host** or **bridged** | use alternatively
-*Restart policy* | **always**
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
+*Adv.con.set. > Restart policy* | **always**
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** |
 *Adv.con.set. > Env > +add env.var.* | *name* **IP_ADDRESS** -> **e.g.192.168.0.1** or **dhcp** | not in `host` mode
 *Adv.con.set. > Env > +add env.var.* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
 *Adv.con.set. > Env > +add env.var.* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | not in `host` mode, in `bridged` mode no need if `dhcp` configured
-*Adv.con.set. > Privileged mode* | **On** |
+*Adv.con.set. > Runt. & Res. > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
